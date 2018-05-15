@@ -29,7 +29,7 @@ def get(path):
 
 def page(page_id):
     path = page_path(page_id)
-    return path, get(path)
+    return get(path)
 
 
 def page_path(page_id):
@@ -37,18 +37,21 @@ def page_path(page_id):
 
 
 def get_page(page_id):
-    path, html = page(page_id)
-    fd = open(dir_name + path + '.txt')
-    fd.write(html)
-    fd.flush()
-    fd.close()
+    file = dir_name + str(page_id) + '.txt'
+    if not os.path.exists(file):
+        print("Writing %d" % page_id)
+        html = page(page_id)
+        fd = open(file, "w+")
+        fd.write(html)
+        fd.flush()
+        fd.close()
 
 
 def redis_set():
     while redis_queue.not_empty:
         key, val = redis_queue.get()
-        print(f'{key} -> {len(val)}')
         client.hset("ebooks", key, val)
+        print(f'{key} -> {len(val)}')
 
 
 def main():
